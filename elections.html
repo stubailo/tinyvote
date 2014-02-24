@@ -46,36 +46,60 @@
 
 <template name="election">
   <h1>{{name}}</h1>
-  <p class="lead">Election opened {{createdAt}},
-    {{voteCount}} votes submitted</p>
+  {{#if closed}}
+    <p class="lead">Election closed {{formatTime closedAt}},
+      {{voteCount}} votes submitted</p>
 
-  <p>Click and drag to put the candidates in the order of your preference, from
-    best to worst.</p>
-  <ul class="candidates">
-    {{#each candidates}}
-      <li data-rank="{{rank}}" data-name="{{name}}">
-        {{index}}: {{name}}
-      </li>
-    {{/each}}
-  </ul>
+    <h3>Winner: {{winner}}</h3>
 
-  <p>Your name will be needed in case you want to resubmit your vote.</p>
-  <div class="form-group">
-    <label class="sr-only">Name</label>
-    <input type="text" name="voterName" placeholder="Your name"
-      class="form-control" />
-  </div>
-  
-    {{#if submitted}}
-      <button class="btn btn-success submit-vote">
-        Submitted
-        <span class="glyphicon glyphicon-ok"></span>
-      </button>
-    {{else}}
-      {{#if submitting}}
-        <button class="btn btn-primary submit-vote">Submitting...</button>
-      {{else}}
-        <button class="btn btn-primary submit-vote">Submit Vote</button>
-      {{/if}}
-    {{/if}}
+    <hr />
+    <h4>All Candidates</h4>
+    <ul class="candidates">
+      {{#each candidates}}
+        <li>
+          {{name}}
+        </li>
+      {{/each}}
+    </ul>    
+  {{else}}
+    <p class="lead">Election opened {{formatTime createdAt}},
+      {{voteCount}} votes submitted</p>
+    <p>Click and drag to put the candidates in the order of your preference, from
+      best to worst.</p>
+
+    <div class="row">
+      <div class="col-xs-10">
+        <ul class="candidates">
+          {{#each candidates}}
+            <li data-rank="{{rank}}" data-name="{{name}}">
+              {{index}}: {{name}}
+            </li>
+          {{/each}}
+        </ul>
+
+        <p>Your name will be needed in case you want to resubmit your vote.</p>
+        <div class="form-group">
+          <label class="sr-only">Name</label>
+          <input type="text" name="voterName" placeholder="Your name"
+            class="form-control" />
+        </div>
+
+        {{#if submitted}}
+          <button class="btn btn-success submit-vote">
+            Submitted
+            <span class="glyphicon glyphicon-ok"></span>
+          </button>
+        {{else}}
+          {{#if submitting}}
+            <button class="btn btn-primary submit-vote">Submitting...</button>
+          {{else}}
+            <button class="btn btn-primary submit-vote">Submit Vote</button>
+          {{/if}}
+        {{/if}}
+
+        <button class="btn btn-danger close-vote">
+          Close Voting / Get Winner</button>
+      </div>
+    </div>
+  {{/if}}
 </template>

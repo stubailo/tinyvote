@@ -88,8 +88,8 @@ if (Meteor.isClient) {
 
       return withIndex;
     },
-    createdAt: function () {
-      return moment(this.createdAt).calendar().toLowerCase();
+    formatTime: function (time) {
+      return moment(time).calendar().toLowerCase();
     },
     submitting: function () {
       return Session.get("submitting");
@@ -124,6 +124,11 @@ if (Meteor.isClient) {
           Session.set("submitting", false);
           Session.set("submitted", true);
         }
+      });
+    },
+    "click .close-vote": function () {
+      Meteor.call("closeElection", this._id, function (error, result) {
+        // nothing yet
       });
     }
   });
@@ -230,6 +235,17 @@ if (Meteor.isServer) {
           }});
         }
       }
+    },
+    closeElection: function (electionId) {
+      var election = Elections.findOne(electionId);
+
+      Elections.update({_id: electionId}, {
+        $set: {
+          closed: true,
+          closedAt: new Date(),
+          winner: election.candidates[0]
+        }
+      });
     }
   });
 }
