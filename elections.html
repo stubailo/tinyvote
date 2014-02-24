@@ -1,0 +1,81 @@
+<head>
+  <title>elections</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+</head>
+
+<body>
+  <div class="container">
+    {{renderRouter}}
+  </div>
+</body>
+
+<template name="loading">
+  Loading...
+</template>
+
+<template name="home">
+  <h1>TinyVote</h1>
+  <p class="lead">Create and run a simple election in seconds.</p>
+
+  <form class="new-election">
+    <div class="row">
+      <div class="col-md-5">
+        <h2>1. Enter Data</h2>
+
+        <div class="form-group">
+          <label class="sr-only">Election Name</label>
+          <input type="text" class="form-control" name="name"
+            placeholder="Election name" />
+        </div>
+        <div class="form-group">
+          <label class="sr-only">Candidates</label>
+          <textarea class="form-control"
+            placeholder="Candidates, one per line"
+            name="candidates"></textarea>
+        </div>
+      </div>
+      <div class="col-md-5 col-md-offset-1">
+        <h2>2. Start Voting</h2>
+        <p>You'll get a unique link to
+          send to election participants.</p>
+        <button class="btn btn-primary btn-lg">Open Election</button>
+      </div>
+    </div>
+  </form>
+</template>
+
+<template name="election">
+  <h1>{{name}}</h1>
+  <p class="lead">Election opened {{createdAt}},
+    {{voteCount}} votes submitted</p>
+
+  <p>Click and drag to put the candidates in the order of your preference, from
+    best to worst.</p>
+  <ul class="candidates">
+    {{#each candidates}}
+      <li data-rank="{{rank}}" data-name="{{name}}">
+        {{index}}: {{name}}
+      </li>
+    {{/each}}
+  </ul>
+
+  <p>Your name will be needed in case you want to resubmit your vote.</p>
+  <div class="form-group">
+    <label class="sr-only">Name</label>
+    <input type="text" name="voterName" placeholder="Your name"
+      class="form-control" />
+  </div>
+  
+    {{#if submitted}}
+      <button class="btn btn-success submit-vote">
+        Submitted
+        <span class="glyphicon glyphicon-ok"></span>
+      </button>
+    {{else}}
+      {{#if submitting}}
+        <button class="btn btn-primary submit-vote">Submitting...</button>
+      {{else}}
+        <button class="btn btn-primary submit-vote">Submit Vote</button>
+      {{/if}}
+    {{/if}}
+</template>
