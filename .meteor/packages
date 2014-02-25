@@ -9,3 +9,9 @@ less
 bootstrap-3
 iron-router
 moment
+voting
+accounts-facebook
+accounts-ui
+accounts-google
+accounts-github
+accounts-password

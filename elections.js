@@ -21,13 +21,13 @@ Router.map(function () {
     data: function () {
       var election = Elections.findOne({slug: this.params.slug});
       
-      var nameToRank = {};
-      
-      _.each(election.candidates, function (candidate, index) {
-        nameToRank[candidate] = index;
-      });
-
-      Session.set("candidates", nameToRank);
+      if (! Session.get("candidates")) {
+        var nameToRank = {};
+        _.each(election.candidates, function (candidate, index) {
+          nameToRank[candidate] = index;
+        });
+        Session.set("candidates", nameToRank);
+      }
 
       return election;
     },
@@ -41,31 +41,37 @@ Router.map(function () {
 });
 
 if (Meteor.isClient) {
+  Meteor.subscribe("ownedElections");
+
   Template.home.events({
     "submit form.new-election": function (event, template) {
-      var name = template.find("input[name=name]").value;
-      var text = template.find("textarea[name=candidates]").value;
+      if (Meteor.userId()) {
+        var name = template.find("input[name=name]").value;
+        var text = template.find("textarea[name=candidates]").value;
 
-      var candidates = _.map(text.split("\n"), function (line) {
-        return line.trim();
-      });
+        var candidates = _.map(text.split("\n"), function (line) {
+          return line.trim();
+        });
 
-      var data = {
-        name: name,
-        candidates: candidates
-      };
+        var data = {
+          name: name,
+          candidates: candidates
+        };
 
-      Meteor.call("createElection", data, function (error, result) {
-        Router.go("election", {slug: result});
-      });
+        Meteor.call("createElection", data, function (error, result) {
+          Router.go("election", {slug: result});
+        });
+      }
 
       event.preventDefault();
     }
   });
 
-  Template.home.helpers({
-    candidates: function () {
-      return Session.get("candidates");
+  Template.navbar.helpers({
+    ownedElections: function () {
+      if (Meteor.userId()) {
+        return Elections.find({owner: Meteor.userId()});
+      }
     }
   });
 
@@ -96,6 +102,16 @@ if (Meteor.isClient) {
     },
     submitted: function () {
       return Session.get("submitted");
+    },
+    isOwner: function () {
+      return Meteor.userId() === this.owner;
+    },
+    pluralize: function (number, wordSingular, wordPlural) {
+      if (number === 1) {
+        return number + " " + wordSingular;
+      } else {
+        return number + " " + wordPlural;
+      }
     }
   });
 
@@ -109,7 +125,14 @@ if (Meteor.isClient) {
       var voterName = template.find("input[name=voterName]").value.trim();
 
       // XXX add validation
-      var candidates = _.keys(Session.get("candidates"));
+      var sortedPairs = _.sortBy(_.pairs(Session.get("candidates")), 
+        function (pair) {
+          return pair[1];
+        });
+
+      var candidates = _.map(sortedPairs, function (pair) {
+        return pair[0];
+      });
 
       var data = {
         voterName: voterName,
@@ -122,9 +145,14 @@ if (Meteor.isClient) {
 
         if (!error) {
           Session.set("submitting", false);
-          Session.set("submitted", true);
+          Session.set("submitted", voterName);
         }
       });
+    },
+    "click .reset": function (event, template) {
+      Session.set("candidates", null);
+      Session.set("submitted", null);
+      template.find("input[name=voterName]").value = "";
     },
     "click .close-vote": function () {
       Meteor.call("closeElection", this._id, function (error, result) {
@@ -152,7 +180,7 @@ if (Meteor.isClient) {
   };
 
   Template.election.rendered = function () {
-    $(this.find(".candidates")).sortable({
+    $(this.find(".sortable")).sortable({
       stop: function (event, ui) {
         Session.set("submitted", false);
 
@@ -192,6 +220,12 @@ if (Meteor.isServer) {
     return Elections.find({slug: slug});
   });
 
+  Meteor.publish("ownedElections", function () {
+    if (this.userId) {
+      return Elections.find({owner: this.userId});
+    }
+  });
+
   Meteor.methods({
     createElection: function (data) {
       check(data, {
@@ -207,7 +241,8 @@ if (Meteor.isServer) {
         name: data.name,
         candidates: data.candidates,
         voteCount: 0,
-        createdAt: new Date()
+        createdAt: new Date(),
+        owner: this.userId
       });
 
       return slug;
@@ -238,14 +273,20 @@ if (Meteor.isServer) {
     },
     closeElection: function (electionId) {
       var election = Elections.findOne(electionId);
+      var candidates = election.candidates;
+      var votes = Votes.find({electionId: electionId}).fetch();
 
-      Elections.update({_id: electionId}, {
-        $set: {
-          closed: true,
-          closedAt: new Date(),
-          winner: election.candidates[0]
-        }
-      });
+      var winner = Voting.instantRunoff(candidates, votes);
+
+      if (winner) {
+        Elections.update({_id: electionId}, {
+          $set: {
+            closed: true,
+            closedAt: new Date(),
+            winner: winner
+          }
+        });
+      }
     }
   });
 }
