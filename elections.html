@@ -141,18 +141,18 @@
         </div>
       </div>
     </div>
-  {{/if}}
 
-  {{#if isOwner}}
-    <h4>Admin</h4>
+    {{#if isOwner}}
+      <h4>Admin</h4>
 
-    <p>
-      <button class="btn btn-danger btn-sm close-vote">
-        Close Voting and Display Winner</button>
-    </p>
+      <p>
+        <button class="btn btn-danger btn-sm close-vote">
+          Close Voting and Display Winner</button>
+      </p>
 
-    <p>TinyVote uses an instant runoff voting algorithm to determine the
-      winner.</p>
+      <p>TinyVote uses an instant runoff voting algorithm to determine the
+        winner.</p>
+    {{/if}}
   {{/if}}
 
 </template>

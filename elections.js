@@ -67,6 +67,12 @@ if (Meteor.isClient) {
     }
   });
 
+  Template.home.rendered = function () {
+    $(this.find("textarea")).autosize({
+      append: "\n"
+    }).trigger('autosize.resize');
+  };
+
   Template.navbar.helpers({
     ownedElections: function () {
       if (Meteor.userId()) {
