@@ -1,0 +1,174 @@
+Meteor.subscribe("ownedElections");
+
+Template.home.events({
+  "submit form.new-election": function (event, template) {
+    if (Meteor.userId()) {
+      var name = template.find("input[name=name]").value;
+      var text = template.find("textarea[name=candidates]").value;
+
+      var candidates = _.map(text.split("\n"), function (line) {
+        return line.trim();
+      });
+
+      var data = {
+        name: name,
+        candidates: candidates
+      };
+
+      Meteor.call("createElection", data, function (error, result) {
+        Router.go("election", {slug: result});
+      });
+    }
+
+    event.preventDefault();
+  }
+});
+
+Template.home.rendered = function () {
+  $(this.find("textarea")).autosize({
+    append: "\n"
+  }).trigger('autosize.resize');
+};
+
+Template.navbar.helpers({
+  ownedElections: function () {
+    if (Meteor.userId()) {
+      return Elections.find({owner: Meteor.userId()});
+    }
+  }
+});
+
+Template.election.helpers({
+  candidates: function () {
+    var candidatesList = _.map(Session.get("candidates"), function (rank, name) {
+      return {
+        name: name,
+        rank: rank
+      };
+    });
+
+    var sorted = _.sortBy(candidatesList, function (candidate) {
+      return candidate.rank;
+    });
+
+    var withIndex = _.map(sorted, function (candidate, index) {
+      return _.extend(candidate, {index: index + 1});
+    });
+
+    return withIndex;
+  },
+  formatTime: function (time) {
+    return moment(time).calendar().toLowerCase();
+  },
+  submitting: function () {
+    return Session.get("submitting");
+  },
+  submitted: function () {
+    return Session.get("submitted");
+  },
+  isOwner: function () {
+    return Meteor.userId() === this.owner;
+  },
+  pluralize: function (number, wordSingular, wordPlural) {
+    if (number === 1) {
+      return number + " " + wordSingular;
+    } else {
+      return number + " " + wordPlural;
+    }
+  }
+});
+
+Template.election.events({
+  "keydown input": function () {
+    Session.set("submitted", false);
+  },
+  "click .submit-vote": function (event, template) {
+    Session.set("submitting", true);
+
+    var voterName = template.find("input[name=voterName]").value.trim();
+
+    // XXX add validation
+    var sortedPairs = _.sortBy(_.pairs(Session.get("candidates")), 
+      function (pair) {
+        return pair[1];
+      });
+
+    var candidates = _.map(sortedPairs, function (pair) {
+      return pair[0];
+    });
+
+    var data = {
+      voterName: voterName,
+      candidates: candidates,
+      electionId: this._id
+    };
+
+    Meteor.call("submitVote", data, function (error, result) {
+      console.log(error, result);
+
+      if (!error) {
+        Session.set("submitting", false);
+        Session.set("submitted", voterName);
+      }
+    });
+  },
+  "click .reset": function (event, template) {
+    Session.set("candidates", null);
+    Session.set("submitted", null);
+    template.find("input[name=voterName]").value = "";
+  },
+  "click .close-vote": function () {
+    Meteor.call("closeElection", this._id, function (error, result) {
+      // nothing yet
+    });
+  }
+});
+
+SimpleRationalRanks = {
+  beforeFirst: function (firstRank) {
+    return firstRank - 1;
+  },
+  between: function (beforeRank, afterRank) {
+    return (beforeRank + afterRank) / 2;
+  },
+  afterLast: function (lastRank) {
+    return lastRank + 1;
+  }
+};
+
+var setRank = function (name, newRank) {
+  var ranks = Session.get("candidates");
+  ranks[name] = newRank;
+  Session.set("candidates", ranks);
+};
+
+Template.election.rendered = function () {
+  $(this.find(".sortable")).sortable({
+    stop: function (event, ui) {
+      Session.set("submitted", false);
+
+      // code below shamelessly hijacked from Avital's example for
+      // reorderable lists
+      var name = ui.item.get(0).dataset.name,
+        before = ui.item.prev().get(0),
+        after = ui.item.next().get(0);
+
+      var newRank;
+      if (!before) { // moving to the top of the list
+        newRank = SimpleRationalRanks.beforeFirst(
+          parseInt(after.dataset.rank, 10));
+
+      } else if (!after) { // moving to the bottom of the list
+        newRank = SimpleRationalRanks.afterLast(
+          parseInt(before.dataset.rank, 10));
+
+      } else {
+        newRank = SimpleRationalRanks.between(
+          parseInt(before.dataset.rank, 10),
+          parseInt(after.dataset.rank, 10));
+      }
+
+      setRank(name, newRank);
+    }
+  });
+};
