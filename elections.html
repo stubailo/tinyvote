@@ -22,20 +22,22 @@
     </a>
 
     {{#if currentUser}}
-      <div class="dropdown">
-        <a class="dropdown-toggle" id="dropdownMenu1"
-          data-toggle="dropdown" href="#">
-            Your Elections
-            <span class="caret"></span>
-          </a>
-        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-          {{#each ownedElections}}
-            <li role="presentation">
-              <a role="menuitem" tabindex="-1" href="/{{slug}}">{{name}}</a>
-            </li>
-          {{/each}}
-        </ul>
-      </div>
+      {{#if ownedElections}}
+        <div class="dropdown">
+          <a class="dropdown-toggle" id="dropdownMenu1"
+            data-toggle="dropdown" href="#">
+              Your Elections
+              <span class="caret"></span>
+            </a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+            {{#each ownedElections}}
+              <li role="presentation">
+                <a role="menuitem" tabindex="-1" href="/{{slug}}">{{name}}</a>
+              </li>
+            {{/each}}
+          </ul>
+        </div>
+      {{/if}}
     {{/if}}
 
     <div class="pull-right">{{loginButtons align="right"}}</div>
