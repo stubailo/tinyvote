@@ -169,9 +169,6 @@ Template.election.events({
           console.warn(error);
         }
       });
-  },
-  "click .link": function (event) {
-    $(event.target).select();
   }
 });
 
