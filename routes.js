@@ -7,6 +7,7 @@ Router.map(function () {
     path: "/",
     unload: function () {
       Session.set("candidates", null);
+      Session.set("formErrors", null);
     }
   });
 
@@ -16,6 +17,8 @@ Router.map(function () {
       return this.subscribe("election", this.params.slug);
     },
     data: function () {
+      Session.set("adminToken", this.params.adminToken);
+
       var election = Elections.findOne({slug: this.params.slug});
       
       if (! Session.get("candidates")) {
@@ -33,6 +36,7 @@ Router.map(function () {
       Session.set("candidates", null);
       Session.set("submitting", null);
       Session.set("submitted", null);
+      Session.set("formErrors", null);
     }
   });
 });

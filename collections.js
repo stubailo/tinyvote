@@ -10,7 +10,7 @@ if (Meteor.isServer) {
 
   // get a certain election by the slug
   Meteor.publish("election", function (slug) {
-    return Elections.find({slug: slug});
+    return Elections.find({slug: slug}, {fields: {adminToken: 0}});
   });
 
   // when you're logged in, get all of the elections you own

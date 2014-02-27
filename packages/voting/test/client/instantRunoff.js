@@ -1,6 +1,13 @@
 Tinytest.add('Voting - instant runoff', function (test) {
   var candidates, votes;
 
+  candidates = ["a"];
+  votes = [
+    {candidates: ["a"]}
+  ];
+
+  test.equal(Voting.instantRunoff(candidates, votes), "a", "One candidate");
+
   candidates = ["a", "b", "c"];
   votes = [
     {candidates: ["a", "b", "c"]},

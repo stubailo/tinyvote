@@ -1,26 +1,51 @@
 Meteor.subscribe("ownedElections");
 
+Handlebars.registerHelper("formError", function (key) {
+  return Session.get("formErrors") && Session.get("formErrors")[key];
+});
+
 Template.home.events({
   "submit form.new-election": function (event, template) {
-    if (Meteor.userId()) {
-      var name = template.find("input[name=name]").value;
-      var text = template.find("textarea[name=candidates]").value;
+    event.preventDefault();
 
-      var candidates = _.map(text.split("\n"), function (line) {
-        return line.trim();
-      });
+    var name = template.find("input[name=name]").value;
+    var text = template.find("textarea[name=candidates]").value.trim();
 
-      var data = {
-        name: name,
-        candidates: candidates
-      };
+    var formErrors = {};
 
-      Meteor.call("createElection", data, function (error, result) {
-        Router.go("election", {slug: result});
-      });
+    if (! name) {
+      formErrors.name = "Name can't be blank.";
     }
 
-    event.preventDefault();
+    var candidates = _.map(text.split("\n"), function (line) {
+      return line.trim();
+    });
+
+    if (candidates.length < 2) {
+      formErrors.candidates = "Must have at least two candidates.";
+    }
+
+    if (! _.isEmpty(formErrors)) {
+      Session.set("formErrors", formErrors);
+      return;
+    }
+
+    var data = {
+      name: name,
+      candidates: candidates
+    };
+
+    Meteor.call("createElection", data, function (error, result) {
+      // result is: {slug: String, adminToken: String}
+      
+      if (result.adminToken) { // election created without login
+        Router.go("/" + result.slug + "?adminToken=" + result.adminToken);
+      } else {
+        Router.go("election", {
+          slug: result.slug
+        });
+      }
+    });
   }
 });
 
@@ -67,7 +92,10 @@ Template.election.helpers({
     return Session.get("submitted");
   },
   isOwner: function () {
-    return Meteor.userId() === this.owner;
+    return Meteor.userId() === this.owner || Session.get("adminToken");
+  },
+  adminToken: function () {
+    return Session.get("adminToken");
   },
   pluralize: function (number, wordSingular, wordPlural) {
     if (number === 1) {
@@ -75,6 +103,15 @@ Template.election.helpers({
     } else {
       return number + " " + wordPlural;
     }
+  },
+  link: function () {
+    var relativePath = Router.routes['election'].path({
+      slug: this.slug
+    });
+
+    var withoutLeadingSlash = relativePath.substr(1);
+
+    return Meteor.absoluteUrl(withoutLeadingSlash);
   }
 });
 
@@ -87,7 +124,17 @@ Template.election.events({
 
     var voterName = template.find("input[name=voterName]").value.trim();
 
-    // XXX add validation
+    var formErrors = {};
+
+    if (! voterName) {
+      formErrors.voterName = "Name can't be blank.";
+    }
+
+    if (! _.isEmpty(formErrors)) {
+      Session.set("formErrors", formErrors);
+      return;
+    }
+
     var sortedPairs = _.sortBy(_.pairs(Session.get("candidates")), 
       function (pair) {
         return pair[1];
@@ -104,8 +151,6 @@ Template.election.events({
     };
 
     Meteor.call("submitVote", data, function (error, result) {
-      console.log(error, result);
-
       if (!error) {
         Session.set("submitting", false);
         Session.set("submitted", voterName);
@@ -118,9 +163,15 @@ Template.election.events({
     template.find("input[name=voterName]").value = "";
   },
   "click .close-vote": function () {
-    Meteor.call("closeElection", this._id, function (error, result) {
-      // nothing yet
-    });
+    Meteor.call("closeElection", this._id, Session.get("adminToken"),
+      function (error, result) {
+        if (error) {
+          console.warn(error);
+        }
+      });
+  },
+  "click .link": function (event) {
+    $(event.target).select();
   }
 });
 

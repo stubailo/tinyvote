@@ -5,20 +5,35 @@ Meteor.methods({
       candidates: [String]
     });
 
-    // generate unique URL
-    var slug = Random.id().substr(0, 6).toLowerCase();
+    if (! election.name) {
+      throw new Meteor.Error("invalid", "Must have a name.");
+    }
 
+    if ((! election.candidates) || election.candidates.length < 2) {
+      throw new Meteor.Error("invalid", "Must have at least two candidates.");
+    }
+
+    // generate unique URL
     // XXX handle duplicate slug? unlikely
-    Elections.insert({
+    var slug = Random.id().substr(0, 6).toLowerCase();
+    
+    election = {
       slug: slug,
       name: election.name,
       candidates: election.candidates,
       voteCount: 0,
-      createdAt: new Date(),
-      owner: this.userId
-    });
+      createdAt: new Date()
+    };
 
-    return slug;
+    if (this.userId) {
+      election.owner = this.userId;
+    } else {
+      election.adminToken = Random.id();
+    }
+
+    Elections.insert(election);
+
+    return election;
   },
   submitVote: function (vote) {
     check(vote, {
@@ -26,6 +41,10 @@ Meteor.methods({
       candidates: [String],
       electionId: String
     });
+
+    if (! vote.voterName) {
+      throw new Meteor.Error("invalid", "Must have a name.");
+    }
 
     // make sure the election exists
     if (Elections.findOne(vote.electionId)) {
@@ -46,8 +65,17 @@ Meteor.methods({
       }
     }
   },
-  closeElection: function (electionId) {
+  closeElection: function (electionId, adminToken) {
     var election = Elections.findOne(electionId);
+
+    // if no authorization info, or the info doesn't match the election
+    if ((! adminToken && ! this.userId) ||
+      (adminToken && election.adminToken !== adminToken) ||
+      (this.userId && election.owner !== this.userId)) {
+      throw new Meteor.Error("auth",
+        "You're not authorized to administer this election.");
+    }
+
     var candidates = election.candidates;
     var votes = Votes.find({electionId: electionId}).fetch();
 

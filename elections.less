@@ -57,3 +57,47 @@ textarea {
   -moz-transition: height 0.2s;
   transition: height 0.2s;
 }
+
+.form-error {
+  background: #fee;
+  padding: 5px 10px;
+  border: #f44 solid 1px;
+  display: inline-block;
+  margin-top: 2px;
+  position: relative;
+  left: 10px;
+  border-radius: 4px;
+
+  &:after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    border: 5px solid transparent;
+    border-bottom: 5px solid #f44;
+    bottom: 100%;
+    z-index: 1;
+    left: 10px;
+  }
+
+  &:before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    border: 4px solid transparent;
+    border-bottom: 4px solid #fee;
+    bottom: 100%;
+    z-index: 2;
+    left: 11px;
+  }
+}
+
+.link {
+  margin-bottom: 20px;
+  font-size: 1.8em;
+  font-weight: 200;
+  width: 100%;
+  border: 1px solid #eee;
+  padding: 5px;
+}

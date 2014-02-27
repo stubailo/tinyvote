@@ -34,6 +34,10 @@ Voting = {
     // as soon as a candidate gains a majority of first preferences, they win
     var majority = votes.length / 2;
 
+    if (candidates.length === 1) {
+      return candidates[0];
+    }
+
     while (candidates.length > 1) {
       // assign every candidate points based on the candidates that are still
       // in the running
