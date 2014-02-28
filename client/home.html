@@ -1,0 +1,35 @@
+<template name="home">
+  <div class="text-center">
+    <br />
+    <h1>TinyVote</h1>
+    <p class="lead">Run a simple election in seconds.</p>
+  </div>
+
+  <form class="new-election">
+    <div class="form-group">
+      <label class="sr-only">Election Name</label>
+      <input type="text" class="form-control" name="name"
+        placeholder="Election name" />
+      {{#if formError "name"}}
+        <div class="form-error">
+          {{formError "name"}}
+        </div>
+      {{/if}}
+    </div>
+    <div class="form-group">
+      <label class="sr-only">Candidates</label>
+      <textarea class="form-control"
+        placeholder="Candidates, one per line"
+        name="candidates"></textarea>
+      {{#if formError "candidates"}}
+        <div class="form-error">
+          {{formError "candidates"}}
+        </div>
+      {{/if}}
+    </div>
+
+    <div class="text-center">
+      <button class="btn btn-primary btn-lg">Open Election</button>    
+    </div>
+  </form>
+</template>

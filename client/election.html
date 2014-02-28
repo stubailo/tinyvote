@@ -1,3 +1,101 @@
+<head>
+  <title>TinyVote</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3">
+        {{> navbar}}
+        {{renderRouter}}
+
+        <br />
+        <br />
+        <br />
+
+        <hr />
+
+        <p class="text-center">
+          By <a href="https://twitter.com/stubailo">@stubailo</a>.
+          <a href="https://github.com/stubailo/tinyvote">
+            See code on GitHub</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+
+<template name="navbar">
+  <div class="navbar-tiny">
+    <a href="/">
+      <span class="glyphicon glyphicon-home"></span>
+      TinyVote
+    </a>
+
+    {{#if currentUser}}
+      {{#if ownedElections}}
+        <div class="dropdown">
+          <a class="dropdown-toggle" id="dropdownMenu1"
+            data-toggle="dropdown" href="#">
+              Your Elections
+              <span class="caret"></span>
+            </a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+            {{#each ownedElections}}
+              <li role="presentation">
+                <a role="menuitem" tabindex="-1" href="/{{slug}}">{{name}}</a>
+              </li>
+            {{/each}}
+          </ul>
+        </div>
+      {{/if}}
+    {{/if}}
+
+    <div class="pull-right">{{loginButtons align="right"}}</div>
+  </div>
+</template>
+
+<template name="loading">
+  Loading...
+</template>
+
+<template name="home">
+  <div class="text-center">
+    <br />
+    <h1>TinyVote</h1>
+    <p class="lead">Run a simple election in seconds.</p>
+  </div>
+
+  <form class="new-election">
+    <div class="form-group">
+      <label class="sr-only">Election Name</label>
+      <input type="text" class="form-control" name="name"
+        placeholder="Election name" />
+      {{#if formError "name"}}
+        <div class="form-error">
+          {{formError "name"}}
+        </div>
+      {{/if}}
+    </div>
+    <div class="form-group">
+      <label class="sr-only">Candidates</label>
+      <textarea class="form-control"
+        placeholder="Candidates, one per line"
+        name="candidates"></textarea>
+      {{#if formError "candidates"}}
+        <div class="form-error">
+          {{formError "candidates"}}
+        </div>
+      {{/if}}
+    </div>
+
+    <div class="text-center">
+      <button class="btn btn-primary btn-lg">Open Election</button>    
+    </div>
+  </form>
+</template>
+
 <template name="election">
   {{#unless closed}}
     {{#if isOwner}}
