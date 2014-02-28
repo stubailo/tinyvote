@@ -13,6 +13,4 @@ TinyVote is currently suitable for any situation where you trust the voters to n
 
 ### Screenshot
 
-<p align="center">
-  <img src="http://i.imgur.com/C8HqwAZ.png" style="width: 400px" />
-</p>
+<img src="http://i.imgur.com/h64xGIj.png" />
