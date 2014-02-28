@@ -154,6 +154,7 @@ Template.election.events({
       if (!error) {
         Session.set("submitting", false);
         Session.set("submitted", voterName);
+        Session.set("formErrors", null);
       }
     });
   },
