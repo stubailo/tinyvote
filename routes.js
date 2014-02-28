@@ -1,3 +1,9 @@
+var triggerGoogleAnalytics = function () {
+  if (window.ga) {
+    ga('send', 'pageview', window.location.origin + window.location.hash);
+  }
+};
+
 Router.configure({
   autoRender: false
 });
@@ -8,6 +14,9 @@ Router.map(function () {
     unload: function () {
       Session.set("candidates", null);
       Session.set("formErrors", null);
+    },
+    before: function () {
+      triggerGoogleAnalytics();
     }
   });
 
@@ -37,6 +46,9 @@ Router.map(function () {
       Session.set("submitting", null);
       Session.set("submitted", null);
       Session.set("formErrors", null);
+    },
+    before: function () {
+      triggerGoogleAnalytics();
     }
   });
 });
