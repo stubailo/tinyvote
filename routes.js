@@ -26,8 +26,6 @@ Router.map(function () {
       return this.subscribe("election", this.params.slug);
     },
     data: function () {
-      Session.set("adminToken", this.params.adminToken);
-
       var election = Elections.findOne({slug: this.params.slug});
       
       if (! Session.get("candidates")) {
@@ -46,6 +44,27 @@ Router.map(function () {
       Session.set("submitting", null);
       Session.set("submitted", null);
       Session.set("formErrors", null);
+    },
+    before: function () {
+      triggerGoogleAnalytics();
+    }
+  });
+
+  this.route("admin", {
+    path: "/:slug/admin",
+    template: "admin",
+    waitOn: function () {
+      return this.subscribe("election", this.params.slug);
+    },
+    data: function () {
+      Session.set("adminToken", this.params.adminToken);
+
+      var election = Elections.findOne({slug: this.params.slug});
+      return election;
+    },
+    loadingTemplate: "loading",
+    unload: function () {
+      Session.set("adminToken", null);
     },
     before: function () {
       triggerGoogleAnalytics();

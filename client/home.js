@@ -38,9 +38,9 @@ Template.home.events({
       // result is: {slug: String, adminToken: String}
       
       if (result.adminToken) { // election created without login
-        Router.go("/" + result.slug + "?adminToken=" + result.adminToken);
+        Router.go("/" + result.slug + "/admin?adminToken=" + result.adminToken);
       } else {
-        Router.go("election", {
+        Router.go("admin", {
           slug: result.slug
         });
       }

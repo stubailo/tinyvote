@@ -31,15 +31,6 @@ Template.election.helpers({
   },
   adminToken: function () {
     return Session.get("adminToken");
-  },
-  link: function () {
-    var relativePath = Router.routes['election'].path({
-      slug: this.slug
-    });
-
-    var withoutLeadingSlash = relativePath.substr(1);
-
-    return Meteor.absoluteUrl(withoutLeadingSlash);
   }
 });
 

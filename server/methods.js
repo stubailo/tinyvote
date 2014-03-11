@@ -13,7 +13,7 @@ Meteor.methods({
       throw new Meteor.Error("invalid", "Must have at least two candidates.");
     }
 
-    if (candidates.length !== _.uniq(candidates).length) {
+    if (election.candidates.length !== _.uniq(election.candidates).length) {
       throw new Meteor.Error("invalid", "Candidates must have unique names.");
     }
 

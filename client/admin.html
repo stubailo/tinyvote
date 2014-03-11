@@ -1,0 +1,18 @@
+<template name="admin">
+  <h2>Admin Page for {{name}}</h2>
+  <p>Send the link below to participants.</p>
+
+  <a class="link" href="{{link}}">{{link}}</a>
+
+  {{#if adminToken}}
+    <p>
+      Save the URL for this page -
+        you can track the status of the election from here.
+    </p>
+  {{/if}}
+
+  <p>
+    <button class="btn btn-danger close-vote">
+      Close Voting and Display Winner</button>
+  </p>
+</template>
