@@ -1,26 +1,22 @@
 <template name="election">
   {{#unless closed}}
     {{#if isOwner}}
-      <div class="panel panel-danger">
-        <div class="panel-heading">
-          Admin
-        </div>
-        <div class="panel-body">
-          <p>Send the link below to participants.
-            {{#if adminToken}}
-              Save the URL for this page -
-                this is your administrator link.
-            {{/if}}
-          </p>
-          
-          <a class="link" href="{{link}}">{{link}}</a>
+      <h2>Admin Page for {{name}}</h2>
+      <p>Send the link below to participants.</p>
 
-          <p>
-            <button class="btn btn-danger btn-sm close-vote">
-              Close Voting and Display Winner</button>
-          </p>
-        </div>
-      </div>
+      <a class="link" href="{{link}}">{{link}}</a>
+
+      {{#if adminToken}}
+        <p>
+          Save the URL for this page -
+            you can track the status of the election from here.
+        </p>
+      {{/if}}
+
+      <p>
+        <button class="btn btn-danger close-vote">
+          Close Voting and Display Winner</button>
+      </p>
     {{/if}}
   {{/unless}}
 
