@@ -32,13 +32,6 @@ Template.election.helpers({
   adminToken: function () {
     return Session.get("adminToken");
   },
-  pluralize: function (number, wordSingular, wordPlural) {
-    if (number === 1) {
-      return number + " " + wordSingular;
-    } else {
-      return number + " " + wordPlural;
-    }
-  },
   link: function () {
     var relativePath = Router.routes['election'].path({
       slug: this.slug

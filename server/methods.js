@@ -13,6 +13,10 @@ Meteor.methods({
       throw new Meteor.Error("invalid", "Must have at least two candidates.");
     }
 
+    if (candidates.length !== _.uniq(candidates).length) {
+      throw new Meteor.Error("invalid", "Candidates must have unique names.");
+    }
+
     // generate unique URL
     // XXX handle duplicate slug? unlikely
     var slug = Random.id().substr(0, 6).toLowerCase();

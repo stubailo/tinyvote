@@ -6,7 +6,6 @@
 standard-app-packages
 preserve-inputs
 less
-bootstrap-3
 iron-router
 moment
 voting
@@ -15,3 +14,4 @@ accounts-ui
 accounts-google
 accounts-github
 accounts-password
+bootstrap-3

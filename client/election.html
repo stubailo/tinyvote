@@ -24,11 +24,9 @@
     {{/if}}
   {{/unless}}
 
-  <h1>{{name}}</h1>
-
   {{#if closed}}
-    <p class="lead">Election closed {{formatTime closedAt}},
-      {{voteCount}} votes submitted</p>
+    <p class="lead">Election closed {{formatTime closedAt}}, <br />
+      {{pluralize voteCount "vote" "votes"}} submitted</p>
 
     <h3>Winner: {{winner}}</h3>
 
@@ -42,55 +40,59 @@
       {{/each}}
     </ul>    
   {{else}}
-    <p class="lead">Election opened {{formatTime createdAt}},
-      {{pluralize voteCount "vote" "votes"}} submitted</p>
-
-    <div class="row">
-      <div class="col-xs-10">
-        <div class="panel panel-default">
-          <div class="panel-body">
-            <p class="text-muted">Drag the candidates into the
-              order of your preference, from best to worst.</p>
-
-            <ul class="candidates sortable">
-              {{#each candidates}}
-                <li data-rank="{{rank}}" data-name="{{name}}">
-                  {{index}}: {{name}}
-                </li>
-              {{/each}}
-            </ul>
-
-            <p class="text-muted">Your name will be needed
-              in case you want to resubmit your vote.</p>
-            <div class="form-group">
-              <label class="sr-only">Name</label>
-              <input type="text" name="voterName" placeholder="Your name"
-                class="form-control" />
-              {{#if formError "voterName"}}
-                <div class="form-error">
-                  {{formError "voterName"}}
-                </div>
-              {{/if}}
-            </div>
-
-            {{#if submitted}}
-              <button class="btn btn-success submit-vote">
-                Submitted for {{submitted}}
-                <span class="glyphicon glyphicon-ok"></span>
-              </button>
-            {{else}}
-              {{#if submitting}}
-                <button class="btn btn-primary submit-vote">Submitting...</button>
-              {{else}}
-                <button class="btn btn-primary submit-vote">Submit Vote</button>
-              {{/if}}
-            {{/if}}
-
-            <button class="btn btn-default reset">
-              Reset Form</button>
-          </div>
+    {{#unless isOwner}}
+      <div class="ballot">
+        <div class="ballot-top">
+          <h1>{{name}}</h1>
+          <p class="lead">Election opened {{formatTime createdAt}}</p>
+          
         </div>
+
+        <br />
+        <p>Drag the candidates into the
+          order of your preference, from best to worst.</p>
+
+        <ul class="candidates sortable">
+          {{#each candidates}}
+            <li data-rank="{{rank}}" data-name="{{name}}">
+              {{index}}: {{name}}
+            </li>
+          {{/each}}
+        </ul>
+
+        <p>Your name will be needed
+          in case you want to resubmit your vote.</p>
+        <div class="form-group">
+          <label class="sr-only">Name</label>
+          <input type="text" name="voterName" placeholder="Your name"
+            class="form-control" />
+          {{#if formError "voterName"}}
+            <div class="form-error">
+              {{formError "voterName"}}
+            </div>
+          {{/if}}
+        </div>
+
+        {{#if submitted}}
+          <button class="btn btn-success submit-vote">
+            Submitted for {{submitted}}
+            <span class="glyphicon glyphicon-ok"></span>
+          </button>
+        {{else}}
+          {{#if submitting}}
+            <button class="btn btn-primary submit-vote">Submitting...</button>
+          {{else}}
+            <button class="btn btn-primary submit-vote">Submit Vote</button>
+          {{/if}}
+        {{/if}}
+
+        <button class="btn btn-default reset">
+          Reset Form</button>
+
+        <hr />
+        <p class="text-muted">{{pluralize voteCount "vote" "votes"}}
+          submitted</p>
       </div>
-    </div>
+    {{/unless}}
   {{/if}}
 </template>

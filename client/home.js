@@ -15,6 +15,11 @@ Template.home.events({
       return line.trim();
     });
 
+    if (candidates.length !== _.uniq(candidates).length) {
+      formErrors.candidates = "Candidates must have unique names.";
+    }
+
+    // make sure we can't have duplicate candidate names
     if (candidates.length < 2) {
       formErrors.candidates = "Must have at least two candidates.";
     }
